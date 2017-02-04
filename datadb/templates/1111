@@ -1,0 +1,17 @@
+var district_boundary = new L.geoJson();
+
+district_boundary.addTo(map);
+
+$.ajax({
+dataType: "json",
+url: "http://127.0.0.1:8000/static/themes/setl.json",
+success: function(data) {
+    $(data.features).each(function(key, data) {
+        district_boundary.addData(data);
+    });
+}
+}).error(function() {});
+
+var myGeoJson = L.geoJson(data, {
+  style: PopulStyle
+}).addTo(map);

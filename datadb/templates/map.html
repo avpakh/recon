@@ -1,0 +1,280 @@
+{% extends "index_db.html" %}
+
+{% block content %}
+
+{% load leaflet_tags %}
+{% load geojson_tags %}
+
+
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+ <style>
+
+
+    .leaflet-container {  /* all maps */
+        width:  1000px;
+        height: 450px;
+       background-color:rgba(255,255,255,0.5);
+     }
+
+    .leaflet-div-icon
+   {
+        background:red;
+        opacity: 0.5;
+        border:5px solid rgba(255,255,255,0.5);
+        color:blue;
+        font-weight:bold;
+        text-align:center;
+        border-radius:50%;
+        line-height:30px;
+    }
+
+    .legend {
+    line-height: 18px;
+    color: #555;
+        }
+
+     .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+     }
+
+    .info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+    .info h4 {
+     margin: 0 0 5px;
+     color: #777;
+}
+
+
+    #specialbigmap {
+        height: 450px;
+    }
+
+</style>
+
+
+   <div class="row">
+                <div class="col-lg-12">
+                    <h4 class="page-header">Схема расположения постов АГС в бассейне реки Припять (территория Республики Беларусь)</h4>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+
+  <script type="text/javascript">
+  var collection = {{ ags_spot|geojsonfeature:"popupContent,nameContent"|safe }};
+  var collection2 = {{ pags_spot|geojsonfeature:"popupContent,nameContent"|safe }};
+  var collection1 = {{ g_spot|geojsonfeature:"popupContent,nameContent"|safe }};
+
+
+  function onEachFeature(feature, layer) {
+    if (feature.properties && feature.properties.popupContent) {
+      layer.bindPopup(feature.properties.popupContent);
+
+    }
+  }
+
+  function map_init(map, options) {
+
+    var AGSIcon = L.icon({
+          iconUrl:  'http://127.0.0.1:8000/static/img/post_ags.png',
+      iconSize: [40,40]
+    });
+
+     var geojsonMarkerOptions = {
+        radius: 10,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 0.5,
+        };
+
+    var layer=L.geoJson(collection,  {
+
+                pointToLayer: function(feature,latlng){
+                var marker = L.marker(latlng,{icon: AGSIcon,opacity:1,riseOnHover:false,title:feature.properties.nameContent});
+                marker.bindPopup(feature.properties.popupContent + '<br/>');
+                return marker;
+                }
+
+                }
+
+    );
+    var overlayBounds=[]
+    layer.addTo(map)
+
+
+     var pAGSIcon = L.icon({
+          iconUrl:  'http://127.0.0.1:8000/static/img/post_agspr.png',
+      iconSize: [45,45]
+    });
+
+     var geojsonMarkerOptions = {
+        radius: 10,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 0.5,
+        };
+
+    var layer2=L.geoJson(collection2,  {
+
+                pointToLayer: function(feature,latlng){
+                var marker = L.marker(latlng,{icon: pAGSIcon,opacity:1,riseOnHover:false,title:feature.properties.nameContent});
+                marker.bindPopup(feature.properties.popupContent + '<br/>');
+                return marker;
+                }
+
+                }
+
+    );
+    var overlayBounds=[]
+    layer2.addTo(map)
+
+
+     var HydroIcon = L.icon({
+          iconUrl:  'http://127.0.0.1:8000/static/img/post_h.png',
+      iconSize: [40,40]
+    });
+
+     var geojsonMarkerOptions = {
+        radius: 10,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity:0.5,
+        fillOpacity: 0.5
+       };
+
+    var layer1=L.geoJson(collection1,  {
+                pointToLayer: function(feature,latlng){
+                var marker = L.marker(latlng,{icon: HydroIcon,riseOnHover:true,zIndexOffset:1,title:feature.properties.nameContent});
+                marker.bindPopup(feature.properties.popupContent + '<br/>');
+                return marker;
+                }
+
+                }
+
+    );
+    layer1.addTo(map);
+
+    var legend = L.control({position: 'bottomleft'});
+
+    legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [" Пункт наблюдения Гидромета ", " Действующие АГС"," Планирумые АГС"],
+        labels = ["http://127.0.0.1:8000/static/img/post_h.png","http://127.0.0.1:8000/static/img/post_ags.png","http://127.0.0.1:8000/static/img/post_agspr.png"];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            (" <img src="+ labels[i] +" height='30' width='30'>") + grades[i] +'<br>';
+    }
+
+    return div;
+};
+
+legend.addTo(map);
+
+
+function PopulStyle(feature) {
+  return {
+  fillColor: '#FC4E2A',
+  weight: 2,
+  opacity: 1,
+  color: 'white',
+  dashArray: '3',
+  fillOpacity: 0.1
+ };
+}
+
+
+ function addDataToMap(data, map) {
+    var dataLayer = L.geoJson(data, {
+        style: PopulStyle,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer.addTo(map);
+}
+
+$.getJSON("http://127.0.0.1:8000/static/themes/test_basin.geojson", function(data) { addDataToMap(data, map); });
+
+function RiverStyle(feature) {
+  return {
+  fillColor: '#3535f6',
+  weight: 1,
+  opacity: 1,
+  color: 'blue',
+  dashArray: '0',
+  fillOpacity: 1
+ };
+}
+
+
+ function addDataToMapRiver(data, map) {
+    var dataLayer1 = L.geoJson(data, {
+        style: RiverStyle,
+        onEachFeature: function(feature, layer) {
+             var popupText = " Название водного объекта: река " + feature.properties.NAME
+                + "<br> Ширина: " + feature.properties.SH;
+            layer.bindPopup(popupText);
+
+             }
+        });
+    dataLayer1.addTo(map);
+}
+
+$.getJSON("http://127.0.0.1:8000/static/themes/test_rivers.geojson", function(data) { addDataToMapRiver(data, map); });
+
+function LakesStyle(feature) {
+  return {
+  fillColor: '#3535f6',
+  weight: 0.5,
+  opacity: 0.5,
+  color: 'blue',
+  dashArray: '0',
+  fillOpacity: 1
+ };
+}
+
+
+ function addDataToMapLakes(data, map) {
+    var dataLayer2 = L.geoJson(data, {
+        style: LakesStyle,
+        onEachFeature: function(feature, layer) {
+             var popupText = " Название водного объекта " + feature.properties.NAME;
+
+            layer.bindPopup(popupText);
+
+             }
+        });
+    dataLayer2.addTo(map);
+}
+
+$.getJSON("http://127.0.0.1:8000/static/themes/test_lakes1.geojson", function(data) { addDataToMapLakes(data, map); });
+
+
+
+
+
+  }
+</script>
+
+
+    {% leaflet_map "spots" callback="window.map_init" %}
+
+{% endblock %}
+
+
+

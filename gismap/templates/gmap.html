@@ -1,0 +1,299 @@
+{% extends "index_gismap.html" %}
+
+{% block content %}
+
+{% load leaflet_tags %}
+{% load geojson_tags %}
+
+
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+ <style>
+
+       #map {
+
+
+
+      }
+
+
+    .leaflet-container {  /* all maps */
+
+       background-color:rgba(255,255,255,0.5);
+       position: absolute;
+       top: 70px;
+       left: 250px;
+       right: 10px;
+       bottom: 20px;
+       border: solid 3px #654;
+
+
+     }
+
+    .leaflet-div-icon
+   {
+        background:red;
+        opacity: 0.5;
+        border:5px solid rgba(255,255,255,0.5);
+        color:blue;
+        font-weight:bold;
+        text-align:center;
+        border-radius:50%;
+        line-height:30px;
+    }
+
+    .legend {
+    line-height: 18px;
+    color: #555;
+        }
+
+     .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+     }
+
+    .info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+    .info h4 {
+     margin: 0 0 5px;
+     color: #777;
+}
+
+
+    #specialbigmap {
+        height: 800px
+    ;
+    }
+
+</style>
+
+
+   <div class="row">
+                <div class="col-lg-12">
+                    <h4 class="page-header">  </h4>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+
+  <script type="text/javascript">
+
+
+
+
+
+  function map_init(map, options) {
+
+
+
+
+function BasinStyle(feature) {
+  return {
+  fillColor: '#FC4E2A',
+  weight: 2,
+  opacity: 1,
+  color: 'white',
+  dashArray: '3',
+  fillOpacity: 0.1
+ };
+}
+
+
+ function addDataToMapBasin(data, map) {
+    var dataLayer = L.geoJson(data, {
+        style: BasinStyle,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/themes/test_basin.geojson", function(data) { addDataToMapBasin(data, map); });
+
+function DistrictsStyle(feature) {
+  return {
+  fillColor: '#fafa59',
+  weight: 2,
+  opacity: 1,
+  color: 'red',
+  dashArray: '3',
+  fillOpacity: 0.4
+ };
+}
+
+
+ function addDataToMapDistrict(data, map) {
+    var dataLayer1 = L.geoJson(data, {
+        style: DistrictsStyle,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer1.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/districts.geojson", function(data) { addDataToMapDistrict(data, map); });
+
+
+function ForestStyle(feature) {
+  return {
+  fillColor: '#5afa59',
+  weight: 1,
+  opacity: 1,
+  color: '#10f80f',
+  dashArray: '1',
+  fillOpacity: 0.8
+ };
+}
+
+
+ function addDataToMapForest(data, map) {
+    var dataLayer2 = L.geoJson(data, {
+        style: ForestStyle,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer2.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/forest.geojson", function(data) { addDataToMapForest(data, map); })
+
+ function ForestStyle(feature) {
+  return {
+  fillColor: '#5afa59',
+  weight: 1,
+  opacity: 1,
+  color: '#10f80f',
+  dashArray: '1',
+  fillOpacity: 0.8
+ };
+}
+
+
+ function addDataToMapForest(data, map) {
+    var dataLayer3 = L.geoJson(data, {
+        style: ForestStyle,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer3.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/forest.geojson", function(data) { addDataToMapForest(data, map); });
+
+
+function SettlementsStyle(feature) {
+  return {
+  fillColor: '#808080',
+  weight: 1,
+  opacity: 1,
+  color: '#d3d3d3',
+  dashArray: '0',
+  fillOpacity: 0.2
+ };
+}
+
+
+ function addDataToMapSet(data, map) {
+    var dataLayer4 = L.geoJson(data, {
+        style:SettlementsStyle,
+        onEachFeature: function(feature, layer) {
+             var popupText = " Название населенного пункта: " + feature.properties.NAME_RU;
+            layer.bindPopup(popupText);
+
+             }
+        });
+    dataLayer4.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/settlements.geojson", function(data) { addDataToMapSet(data, map); });
+
+
+
+function LakesStyle(feature) {
+  return {
+  fillColor: '#3535f6',
+  weight: 0.5,
+  opacity: 0.5,
+  color: 'blue',
+  dashArray: '0',
+  fillOpacity: 1
+ };
+}
+
+
+ function addDataToMapLakes(data, map) {
+    var dataLayer6 = L.geoJson(data, {
+        style: LakesStyle,
+        onEachFeature: function(feature, layer) {
+             var popupText = " Название водного объекта (озеро/вдхр.) " + feature.properties.NAME;
+
+            layer.bindPopup(popupText);
+
+             }
+        });
+    dataLayer6.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/waterb.geojson", function(data) { addDataToMapLakes(data, map); });
+
+
+
+
+function MStyle(feature) {
+  return {
+  fillColor: '#3535f6',
+  weight: 1,
+  opacity: 1,
+  color: '#8a2be2',
+  dashArray: '0',
+  fillOpacity: 1
+ };
+}
+
+
+ function addDataToMapR(data, map) {
+    var dataLayer5 = L.geoJson(data, {
+        style: MStyle,
+        onEachFeature: function(feature, layer) {
+                        }
+        });
+    dataLayer5.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/themes/test_rivers.geojson", function(data) { addDataToMapR(data, map); });
+
+
+   function Zone5Style(feature) {
+  return {
+  fillColor: '#bc8f8f',
+  weight: 1,
+  opacity: 1,
+  color: '#10f80f',
+  dashArray: '1',
+  fillOpacity: 0.4
+ };
+}
+
+
+ function addDataToMapZone5(data, map) {
+    var dataLayer13 = L.geoJson(data, {
+        style: Zone5Style,
+        onEachFeature: function(feature, layer) {  }});
+    dataLayer13.addTo(map);
+}
+
+$.getJSON("http://192.168.1.101:8000/static/gismaps/zone5p.geojson", function(data) { addDataToMapZone5(data, map); });
+
+
+  }
+</script>
+
+
+    {% leaflet_map "spots" callback="window.map_init" %}
+
+{% endblock %}
+
+
+
